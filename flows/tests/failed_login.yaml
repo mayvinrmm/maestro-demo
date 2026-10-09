@@ -1,0 +1,13 @@
+# flows/tests/failed_login.yaml
+appId: ${APP_ID}
+tags:
+  - regression
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: ../common/login.yaml
+    env:
+      EMAIL: "test@mobile-automation.io"
+      PASSWORD: "short"
+- assertVisible: "Please enter at least 8 characters"

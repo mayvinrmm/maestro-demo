@@ -1,0 +1,14 @@
+# flows/tests/successful_login.yaml
+appId: ${APP_ID}
+tags:
+  - smoke
+  - regression
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: ../common/login.yaml
+    env:
+      EMAIL: "test@mobile-automation.io"
+      PASSWORD: "Password1234"
+- assertVisible: "You are logged in!"

@@ -1,0 +1,15 @@
+# flows/tests/api_login.yaml
+appId: ${APP_ID}
+tags:
+  - regression
+  - network
+---
+- runScript: ../scripts/get_test_user.js
+- launchApp:
+    clearState: true
+- runFlow:
+    file: ../common/login.yaml
+    env:
+      EMAIL: ${output.testUser.email}
+      PASSWORD: "Password1234"
+- assertVisible: "You are logged in!"

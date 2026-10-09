@@ -1,0 +1,20 @@
+# flows/common/login.yaml
+appId: ${APP_ID}
+---
+- tapOn: "Login"
+- tapOn: "Email"
+- inputText: ${EMAIL}
+- tapOn: "Password"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn: "button-LOGIN"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: "button-LOGIN"
