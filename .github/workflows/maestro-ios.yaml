@@ -1,0 +1,48 @@
+# .github/workflows/maestro-ios.yml
+name: Maestro iOS
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'   # every night at 03:00 UTC
+
+jobs:
+  test-ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      # Pull requests run the smoke tests; the nightly run covers everything
+      TAGS: ${{ github.event_name == 'schedule' && '--include-tags=regression' || '--include-tags=smoke' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: Install Maestro CLI
+        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+
+      - name: Download the demo app
+        run: |
+          curl -fsSL -o app.zip https://github.com/webdriverio/native-demo-app/releases/download/v2.2.0/ios.simulator.wdio.native.app.v2.2.0.zip
+          unzip -q app.zip
+
+      - name: Boot simulator
+        run: xcrun simctl bootstatus "iPhone 16" -b
+
+      - name: Install app and run tests
+        run: |
+          xcrun simctl install booted wdiodemoapp.app
+          $HOME/.maestro/bin/maestro --no-ansi --platform ios test -e APP_ID=org.wdiodemoapp $TAGS --format junit --output report.xml --debug-output maestro-debug flows/
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maestro-ios-results
+          path: |
+            report.xml
+            maestro-debug/

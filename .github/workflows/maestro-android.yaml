@@ -1,0 +1,53 @@
+# .github/workflows/maestro-android.yml
+name: Maestro Android
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'   # every night at 03:00 UTC
+
+jobs:
+  test-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Pull requests run the smoke tests; the nightly run covers everything
+      TAGS: ${{ github.event_name == 'schedule' && '--include-tags=regression' || '--include-tags=smoke' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Enable KVM (hardware acceleration for the emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: Install Maestro CLI
+        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+
+      - name: Download the demo app
+        run: curl -fsSL -o app.apk https://github.com/webdriverio/native-demo-app/releases/download/v2.2.0/android.wdio.native.app.v2.2.0.apk
+
+      - name: Boot Android emulator and run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          script: |
+            adb install app.apk
+            $HOME/.maestro/bin/maestro --no-ansi --platform android test -e APP_ID=com.wdiodemoapp $TAGS --format junit --output report.xml --debug-output maestro-debug flows/
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maestro-android-results
+          path: |
+            report.xml
+            maestro-debug/
