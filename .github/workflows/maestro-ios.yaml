@@ -34,7 +34,7 @@ jobs:
         run: xcrun simctl list devices available
 
       - name: Boot simulator
-        run: xcrun simctl bootstatus "iPhone 16" -b
+        run: xcrun simctl bootstatus "iPhone 17" -b
 
       - name: Install app and run tests
         run: |
