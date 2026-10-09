@@ -30,6 +30,9 @@ jobs:
           curl -fsSL -o app.zip https://github.com/webdriverio/native-demo-app/releases/download/v2.2.0/ios.simulator.wdio.native.app.v2.2.0.zip
           unzip -q app.zip
 
+      - name: List available simulators
+        run: xcrun simctl list devices available
+
       - name: Boot simulator
         run: xcrun simctl bootstatus "iPhone 16" -b
 
