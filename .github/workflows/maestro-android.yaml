@@ -41,7 +41,7 @@ jobs:
           arch: x86_64
           script: |
             adb install app.apk
-            $HOME/.maestro/bin/maestro --no-ansi --platform android test -e APP_ID=com.wdiodemoapp $TAGS --format junit --output report.xml --debug-output maestro-debug flows/
+            $HOME/.maestro/bin/maestro --no-ansi --platform android test -e APP_ID=com.wdiodemoapp $TAGS --format junit --output report.xml --test-output-dir maestro-output flows/
 
       - name: Upload test results
         if: always()
@@ -50,4 +50,4 @@ jobs:
           name: maestro-android-results
           path: |
             report.xml
-            maestro-debug/
+            maestro-output/
