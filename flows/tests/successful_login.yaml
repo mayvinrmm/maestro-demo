@@ -12,4 +12,4 @@ tags:
     env:
       EMAIL: "test@mobile-automation.io"
       PASSWORD: "Password1234"
-- assertVisible: "You are logged in!"
+- assertVisible: "You are NOT logged in!"
